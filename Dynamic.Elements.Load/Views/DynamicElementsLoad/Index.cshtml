@@ -1,0 +1,171 @@
+﻿@model Dynamic.Elements.Load.Models.ElementsModel
+@{
+    Layout = null;
+}
+
+<style>
+    .bold {
+        font-weight: bold !important;
+    }
+</style>
+
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Index</title>
+</head>
+<body>
+    <div>
+        <a href="#" style="margin-top:29px;margin-left:15px;"
+           class="btn btn-info add-row" role="button"> <i class="fa fa-plus"></i>&nbsp;Add Row</a>
+    </div>
+    <div id="firstDriver_initialForm">
+        <form method="post" id="frmElements" class="form-group">
+            @Html.HiddenFor(model => model.IncrementValue)
+            <div class="container">
+                <div class="dynamic-rows">
+                    <div class="row" id="template" data-order="0">
+                        <div class="row filter">
+                            <div class="col-md-3">
+                                <label class="bold">Enter Name:</label>
+                                @Html.TextBoxFor(model => model.lstTemplateModels.Name, new { @class = "form-control demo", placeholder = "Enter Name" })
+                            </div>
+                            <div class="col-md-3">
+                                <label class="bold">Remember Me:</label>
+                                @Html.CheckBoxFor(model => model.lstTemplateModels.IsChecked, new { @class = "form-control form-check-input", @style = "margin-top:12px;height:20px;" })
+                            </div>
+                            <div class="col-md-3">
+                                <label class="bold">DropDown:</label>
+                                @Html.DropDownListFor(model => model.lstTemplateModels.DropDownValue, new List<SelectListItem>
+                           {
+                               new SelectListItem {Text="Single",Value="SINGLE"},
+                               new SelectListItem {Text="Married",Value="MARRIED"}
+                           }, "Select Status", new { @class = "form-control" })
+                            </div>
+                            <div class="col-md-3">
+                                <button style="margin-top:31px;" type="submit" class="btn btn-danger delete-row" data-val="0"><i class="fa fa-trash"></i>&nbsp;Delete Row</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <button style="margin-top:18px;margin-left:35px;" id="saveTemplate" type="submit" class="btn btn-success">Submit</button>
+
+</body>
+</html>
+
+<script src="~/Scripts/jquery-3.3.1.min.js"></script>
+<script type="text/javascript">
+
+
+    var i = 0;
+    $('.add-row').click(function () {
+        i = i + 1;
+        var _formTemp = $("#template").clone(true)
+        var _targetForm = $(".dynamic-rows")
+        _formTemp.attr("data-order", i);
+        _targetForm.append(_formTemp)
+        return false;
+    });
+
+      function addTemplate() {
+
+        var value = parseInt($("#IncrementValue").val(), 10) + 1;
+        $("#IncrementValue").val(value);
+        var putValue = $("#IncrementValue").val();
+        var html = '<div class="row filter prclass_' + (putValue - 1) + '" data-order=[' + (putValue - 1)+']>' +
+            '<div class="col-md-3"><label class="bold">Enter Name:</label> <input class="form-control" id="lstTemplateModels[' + (putValue - 1) + '].Name" name="lstTemplateModels[' + (putValue - 1) + '].Name" type="text" placeholder="Enter Name" ></div>' +
+            '<div class="col-md-3"><lable class="bold">Remember Me:</lable><input class="form-control form-check-input" id="lstTemplateModels[' + (putValue - 1) + '].IsChecked" name="lstTemplateModels[' + (putValue - 1) + '].IsChecked" type="checkbox" style="margin-top:20px;height:20px;"></div>' +
+            '<div class="col-md-3"><label class="bold">DropDown:</label> <select class="form-control" id="lstTemplateModels[' + (putValue - 1) + '].DropDownValue" name="lstTemplateModels[' + (putValue - 1) + '].DropDownValue"><option value="null">Select Status</option><option value="SINGLE">Single</option><option value="MARRIED">Married</option></select> </div>' +
+            '<div class="col-md-3"><button type="submit" style="margin-top:31px;" class="btn btn-danger delete-row" data-val="' + (putValue - 1) + '"><i class="fa fa-trash"></i>&nbsp;Delete Row</button></div>' +
+            '</div >'
+        $(html).appendTo($("#template"));
+
+    };
+
+       //var formElements = $("div.dynamic-rows").children();
+       // for (var elem = 0; elem < formElements.length; elem++)
+       // {
+       //     var childHTMLText = formElements[elem];
+       //     var orderId = $(childHTMLText).attr("data-order");
+       //     $(childHTMLText).find("input, select").each(function () {
+       //         debugger
+       //         var elementName = $(this).attr("name");
+       //         var elementNameid = $(this).attr("id");
+       //         if (elementName != null && elementName != undefined) {
+       //             var newName = elementName.split('.')[0] +"["+elem.toString()+"]."+elementName.split('.')[1];
+       //             $(this).attr("name", newName);
+       //         }
+       //         if (elementNameid != null && elementNameid != undefined) {
+       //             var newId = elementNameid.split('.')[0] +"["+elem.toString()+"]."+elementNameid.split('.')[1];
+       //             $(this).attr("id", newId);
+       //         }
+       //     });
+       //     $(childHTMLText).attr("data-order", '[' + elem + ']')
+       // }
+
+
+    $("#saveTemplate").click(function (e) {
+
+
+        var $form = $("#frmElements");
+
+        $.ajax({
+            url: '@Url.Action("PostTemplate", "DynamicElementsLoad")',
+            type: "POST",
+            data: $('#frmElements').serialize(),
+
+            traditional: true,
+            success: function (result) {
+
+            },
+            error: function (xhr) {
+
+            }
+        });
+    });
+
+
+    $(document).on("click", ".delete-row", function (e) {
+        e.preventDefault();
+        var parentDiv = $(this).parent().parent();
+        $(parentDiv).remove();
+        var formElements = $("div.dynamic-rows").children();
+        for (var elem = 0; elem < formElements.length; elem++)
+        {
+            var childHTMLText = formElements[elem];
+            var orderId = $(childHTMLText).attr("data-order");
+            $(childHTMLText).find("input, select").each(function () {
+                var elementName = $(this).attr("name");
+                var elementNameid = $(this).attr("id");
+                if (elementName != null && elementName != undefined) {
+                    var newName = replaceAll(elementName, orderId, '[' + elem + ']');
+                    $(this).attr("name", newName);
+                }
+                if (elementNameid != null && elementNameid != undefined) {
+                    var newId = replaceAll(elementNameid, orderId, '[' + elem + ']');
+                    $(this).attr("id", newId);
+                }
+            });
+            $(childHTMLText).attr("data-order", '[' + elem + ']')
+        }
+        return false;
+    });
+
+
+    function escapeRegExp(string) {
+        return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    }
+
+    function replaceAll(str, term, replacement) {
+        return str.replace(new RegExp(escapeRegExp(term), 'g'), replacement);
+    }
+</script>
+
